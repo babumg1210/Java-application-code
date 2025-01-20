@@ -4,28 +4,47 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-steps:
-- task: Maven@3
-  inputs:
-    mavenPomFile: 'pom.xml'
-    mavenOptions: '-Xmx3072m'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.11'
-    jdkArchitectureOption: 'x64'
-    publishJUnitResults: true
-    testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    goals: 'package'
+stages:
+- stage: Build
+  displayName: 'Build Stage'
+  jobs:
+  - job: BuildJob
+    displayName: 'Build Job'
+    steps:
+      - task: Maven@3
+        inputs:
+          mavenPomFile: 'pom.xml'
+          mavenOptions: '-Xmx3072m'
+          javaHomeOption: 'JDKVersion'
+          jdkVersionOption: '1.11'
+          jdkArchitectureOption: 'x64'
+          publishJUnitResults: true
+          testResultsFiles: '**/surefire-reports/TEST-*.xml'
+          goals: 'package'
 
-# Copy the built artifact to a specific directory
-- task: CopyFiles@2
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/target'
-    Contents: '**'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)/drop'
+      # Copy the built artifact to a specific directory
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: '$(Build.SourcesDirectory)/target'
+          Contents: '**/*.jar'
+          TargetFolder: '$(Build.ArtifactStagingDirectory)/drop'
 
-# Publish the build artifact
-- task: PublishBuildArtifacts@1
-  inputs:
-    artifactName: 'drop'
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)/drop'
-    publishLocation: 'Container'
+      # Publish the build artifact
+      - task: PublishBuildArtifacts@1
+        inputs:
+          artifactName: 'drop'
+          pathtoPublish: '$(Build.ArtifactStagingDirectory)/drop'
+          publishLocation: 'Container'
+
+- stage: Deploy
+  displayName: 'Deploy to Azure VM'
+  dependsOn: Build  # Deploy only after the build stage is successful
+  jobs:
+  - job: DeployJob
+    displayName: 'Deploy Job'
+    environment: 'Staging'  # Specify the environment (e.g., 'Staging', 'Production')
+    steps:
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        artifactName: 'drop'
+        downloadPath: '$(System.DefaultWorkingDirectory)/drop'  # Where to store the downloaded artifact

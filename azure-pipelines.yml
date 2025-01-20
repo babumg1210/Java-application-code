@@ -76,10 +76,10 @@ stages:
           sshpass -p $VM_PASSWORD ssh -o StrictHostKeyChecking=no $VM_USER@$VM_IP << EOF
             cd /home/adminuser/deployments
             echo "Stopping existing application..."
-            sudo systemctl stop your-application.service || true  # Ensure no error if the service is not running
+            sudo systemctl stop spring-boot-web.service || true  # Ensure no error if the service is not running
             echo "Moving new application JAR..."
-            sudo mv your-application.jar /opt/adminuser/your-application.jar
+            sudo mv spring-boot-web.jar /opt/adminuser/spring-boot-web.jar
             echo "Starting the application..."
-            sudo systemctl start your-application.service
+            sudo systemctl start spring-boot-web.service
           EOF
         displayName: 'Deploy Spring Boot Application to Production'

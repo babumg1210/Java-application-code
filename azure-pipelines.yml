@@ -42,7 +42,7 @@ stages:
   jobs:
   - job: DeployJob
     displayName: 'Deploy Job'
-    environment: 'Staging'  # Specify the environment (e.g., 'Staging', 'Production')
+    #environment: 'Staging'  # Specify the environment (e.g., 'Staging', 'Production')
     steps:
     - task: DownloadBuildArtifacts@0
       inputs:
@@ -50,25 +50,36 @@ stages:
         downloadPath: '$(System.DefaultWorkingDirectory)/drop'  # Where to store the downloaded artifact
     - task: AzureCLI@2
       inputs:
-        azureSubscription: 'az'
+        azureSubscription: 'devpos-sc'  # Specify your Azure service connection
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          # Similar SSH and deployment logic for production
-          VM_IP="your_production_vm_public_ip"  # Your Production VM's IP
-          VM_USER="your_vm_username"  # Same SSH username as staging or adjust if needed
-          SSH_KEY_PATH="~/.ssh/id_rsa"  # Same SSH private key or adjust path
-          ARTIFACT_PATH="$(System.DefaultWorkingDirectory)/drop/your-application.jar"
-          REMOTE_PATH="/home/your_vm_username/deployments/your-application.jar"
+          # Production VM details
+          VM_IP="52.170.84.227"  # Your Production VM's IP address
+          VM_USER="adminuser"  # SSH username for the VM
+          VM_PASSWORD="Password123!"  # SSH password (should be securely managed)
+          ARTIFACT_PATH="$(System.DefaultWorkingDirectory)/drop/spring-boot-web.jar"  # Path to the .jar file from the build artifact
+          REMOTE_PATH="/home/your_vm_username/deployments/spring-boot-web.jar"  # Remote path on the VM
 
-          # Copy the .jar to Production VM
-          scp -i $SSH_KEY_PATH -o StrictHostKeyChecking=no $ARTIFACT_PATH $VM_USER@$VM_IP:$REMOTE_PATH
+          # Install SSHpass for password-based SSH authentication
+          sudo apt-get install -y sshpass
 
-          # Run the application in Production
-          ssh -i $SSH_KEY_PATH -o StrictHostKeyChecking=no $VM_USER@$VM_IP << EOF
+          # Ensure the destination directory exists on the VM
+          sshpass -p $VM_PASSWORD ssh -o StrictHostKeyChecking=no $VM_USER@$VM_IP "mkdir -p /home/your_vm_username/deployments"
+
+          # Copy the .jar file to the Production VM
+          echo "Copying application .jar to the Production VM..."
+          sshpass -p $VM_PASSWORD scp -o StrictHostKeyChecking=no $ARTIFACT_PATH $VM_USER@$VM_IP:$REMOTE_PATH
+
+          # Deploy and restart the application on the VM
+          echo "Deploying the application on Production VM..."
+          sshpass -p $VM_PASSWORD ssh -o StrictHostKeyChecking=no $VM_USER@$VM_IP << EOF
             cd /home/your_vm_username/deployments
-            sudo systemctl stop your-application.service
+            echo "Stopping existing application..."
+            sudo systemctl stop your-application.service || true  # Ensure no error if the service is not running
+            echo "Moving new application JAR..."
             sudo mv your-application.jar /opt/your-application/your-application.jar
+            echo "Starting the application..."
             sudo systemctl start your-application.service
           EOF
         displayName: 'Deploy Spring Boot Application to Production'

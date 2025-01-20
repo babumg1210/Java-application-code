@@ -48,3 +48,27 @@ stages:
       inputs:
         artifactName: 'drop'
         downloadPath: '$(System.DefaultWorkingDirectory)/drop'  # Where to store the downloaded artifact
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'az'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          # Similar SSH and deployment logic for production
+          VM_IP="your_production_vm_public_ip"  # Your Production VM's IP
+          VM_USER="your_vm_username"  # Same SSH username as staging or adjust if needed
+          SSH_KEY_PATH="~/.ssh/id_rsa"  # Same SSH private key or adjust path
+          ARTIFACT_PATH="$(System.DefaultWorkingDirectory)/drop/your-application.jar"
+          REMOTE_PATH="/home/your_vm_username/deployments/your-application.jar"
+
+          # Copy the .jar to Production VM
+          scp -i $SSH_KEY_PATH -o StrictHostKeyChecking=no $ARTIFACT_PATH $VM_USER@$VM_IP:$REMOTE_PATH
+
+          # Run the application in Production
+          ssh -i $SSH_KEY_PATH -o StrictHostKeyChecking=no $VM_USER@$VM_IP << EOF
+            cd /home/your_vm_username/deployments
+            sudo systemctl stop your-application.service
+            sudo mv your-application.jar /opt/your-application/your-application.jar
+            sudo systemctl start your-application.service
+          EOF
+        displayName: 'Deploy Spring Boot Application to Production'

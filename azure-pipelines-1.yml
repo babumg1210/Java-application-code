@@ -55,7 +55,7 @@ stages:
                       ls -l  # List files to confirm JAR file is there
                       # Add more debugging information
                       find . -name "*.jar" -print  # To print the found files
-                      find . -type f -name "*.jar" -exec java -jar {} \;  # Run the jar file
+                      java -jar ./sudhakar/drop/spring-boot-web.jar
                   displayName: 'Install Java and Start JAR File on VM'
 
 

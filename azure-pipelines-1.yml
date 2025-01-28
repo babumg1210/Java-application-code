@@ -45,14 +45,14 @@ stages:
                     readyTimeout: '20000'
                 - task: SSH@0
                   inputs:
-                    sshEndpoint: 'dev-sHh'  # Make sure this matches the name of your SSH service connection
-                    runOptions: 'commands'  # Use 'commands' to run inline commands
+                    sshEndpoint: 'dev-shh'  # Ensure this matches the name of your SSH service connection
+                    runOptions: 'commands'
                     commands: |
-                      cd /home/adminuser/sudhakar  # Navigate to the user's home directory
-                      cd /drop  # Navigate to the 'drop' directory where your JAR file is
-                      pwd  # Verify the current directory (useful for debugging)
+                      cd /home/adminuser/sudhakar/drop  # Correct path to the directory where the JAR file is
+                      pwd  # Verify the current directory
                       java -jar spring-boot-web.jar  # Run the JAR file
                   displayName: 'Install Java and Start JAR File on VM'
+
 
 
                               

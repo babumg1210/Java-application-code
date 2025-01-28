@@ -27,34 +27,34 @@ stages:
             maxParallel: 1  # Specifies rolling deployment with one instance at a time
             deploy:
               steps:
-                # - task: DownloadBuildArtifacts@1
-                #   inputs:
-                #     buildType: 'specific'  # Download artifacts from a specific pipeline
-                #     project: '$(System.TeamProject)'  # Using the current project
-                #     pipeline: 'JavaCICDPipeline'  # Alias to refer to the source pipeline
-                #     runVersion: 'latest'  # Download the latest successful run of the pipeline
-                #     downloadPath: '$(System.ArtifactsDirectory)'  # Directory to download the artifacts
-                #     artifactName: 'drop'  # Artifact name to download
+                - task: DownloadBuildArtifacts@1
+                  inputs:
+                    buildType: 'specific'  # Download artifacts from a specific pipeline
+                    project: '$(System.TeamProject)'  # Using the current project
+                    pipeline: 'JavaCICDPipeline'  # Alias to refer to the source pipeline
+                    runVersion: 'latest'  # Download the latest successful run of the pipeline
+                    downloadPath: '$(System.ArtifactsDirectory)'  # Directory to download the artifacts
+                    artifactName: 'drop'  # Artifact name to download
 
-                # - task: CopyFilesOverSSH@0
-                #   inputs:
-                #     sshEndpoint: 'dev-shh'  # Ensure this matches your configured SSH service connection
-                #     sourceFolder: '$(System.ArtifactsDirectory)'
-                #     contents: '**/*.jar'
-                #     targetFolder: '/home/adminuser/sudhakar'
-                #     readyTimeout: '20000'
-             
-              - task: SSH@0
-                inputs:
-                  sshEndpoint: 'dev-shh'  # Ensure this matches the name of your SSH service connection
-                  runOptions: 'commands'
-                  commands: |
-                    echo "Navigating to /home/adminuser/sudhakar/drop"
-                    cd /home/adminuser/sudhakar/drop  # Correct path to the directory where the JAR file is located
-                    pwd  # Verify the current directory
-                    ls -l  # List files to confirm JAR file is there
-                    java -jar spring-boot-web.jar  # Run the JAR file
-                displayName: 'Install Java and Start JAR File on VM'
+                - task: CopyFilesOverSSH@0
+                  inputs:
+                    sshEndpoint: 'dev-shh'  # Ensure this matches your configured SSH service connection
+                    sourceFolder: '$(System.ArtifactsDirectory)'
+                    contents: '**/*.jar'
+                    targetFolder: '/home/adminuser/sudhakar'
+                    readyTimeout: '20000'
+              
+                - task: SSH@0
+                  inputs:
+                    sshEndpoint: 'dev-shh'
+                    runOptions: 'commands'
+                    commands: |
+                      echo "Navigating to /home/adminuser/sudhakar/drop"
+                      cd /home/adminuser/sudhakar/drop  # Correct path to the directory where the JAR file is located
+                      pwd  # Verify the current directory
+                      ls -l  # List files to confirm JAR file is there
+                      java -jar **/*.jar  # Run the first .jar file found in the directory (recursively)
+                  displayName: 'Install Java and Start JAR File on VM'
 
 
 

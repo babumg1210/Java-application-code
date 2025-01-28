@@ -53,9 +53,10 @@ stages:
                       cd /home/adminuser/sudhakar/drop  # Correct path to the directory where the JAR file is located
                       pwd  # Verify the current directory
                       ls -l  # List files to confirm JAR file is there
-                      # Find the first JAR file and run it
-                      find . -name "*.jar" -exec java -jar {} \;  # Ensure proper termination of the -exec flag
+                      # Use find to locate the .jar file and run it
+                      find . -type f -name "*.jar" -exec java -jar {} \;  # Fix: proper -exec termination with \;
                   displayName: 'Install Java and Start JAR File on VM'
+
 
 
 

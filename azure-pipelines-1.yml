@@ -54,8 +54,9 @@ stages:
                       pwd  # Verify the current directory
                       ls -l  # List files to confirm JAR file is there
                       # Find the first JAR file and run it
-                      find . -name "*.jar" -exec java -jar {} \;  # Locate and execute the JAR file
+                      find . -name "*.jar" -exec java -jar {} \;  # Ensure proper termination of the -exec flag
                   displayName: 'Install Java and Start JAR File on VM'
+
 
 
 

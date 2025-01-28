@@ -48,9 +48,10 @@ stages:
                     sshEndpoint: 'dev-shh'  # Ensure this matches your configured SSH service connection
                     runOptions: 'commands'
                     command: |
-                      sudo apt update
-                      sudo apt install openjdk-11-jdk -y
-                      java -jar /home/adminuser/sudhakar/drop/spring-boot-web.jar
+                      cd /home/adminuser/sudhakar
+                      cd  /drop
+                      pwd
+                      java -jar spring-boot-web.jar
                   displayName: Install Java and Start JAR File on VM
 
                               

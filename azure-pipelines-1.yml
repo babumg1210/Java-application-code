@@ -1,10 +1,10 @@
 trigger:
-- none  # No automatic trigger
+  - none  # No automatic trigger
 
 resources:
   pipelines:
     - pipeline: JavaCICDPipeline  # This is the alias that references the source pipeline
-      source: "JavaCICDPipeline"   # This is the actual name of the pipeline
+      source: "JavaCICDPipeline"  # This is the actual name of the pipeline
       trigger:
         branches:
           include:
@@ -17,16 +17,29 @@ stages:
   - stage: Deploy
     displayName: 'Deploy the Application'
     jobs:
-      - job: Application_Code  # Make sure the job name is valid (alphanumeric and underscores)
-        displayName: 'Download and Deploy Application'
-        steps:
-          - task: DownloadBuildArtifacts@1
-            inputs:
-              buildType: 'specific'  # Download artifacts from a specific pipeline
-              project: '$(System.TeamProject)'  # Using the current project
-              pipeline: 'JavaCICDPipeline'  # Alias to refer to the source pipeline
-              runVersion: 'latest'  # Download the latest successful run of the pipeline
-              downloadPath: '$(System.ArtifactsDirectory)'  # Directory to download the artifacts
-              artifactName: 'drop'  # Artifact name to download
+      - deployment: DevDeployment
+        displayName: 'Deploy to Development'
+        environment:
+          name: 'Development'  # Name of the environment
+          resourceType: VirtualMachine  # Type of resource being deployed
+        strategy:
+          rolling:
+            maxParallel: 1  # Specifies rolling deployment with one instance at a time
+            deploy:
+              steps:
+                - task: DownloadBuildArtifacts@1
+                  inputs:
+                    buildType: 'specific'  # Download artifacts from a specific pipeline
+                    project: '$(System.TeamProject)'  # Using the current project
+                    pipeline: 'JavaCICDPipeline'  # Alias to refer to the source pipeline
+                    runVersion: 'latest'  # Download the latest successful run of the pipeline
+                    downloadPath: '$(System.ArtifactsDirectory)'  # Directory to download the artifacts
+                    artifactName: 'drop'  # Artifact name to download
 
-         
+                - task: CopyFilesOverSSH@0
+                  inputs:
+                    sshEndpoint: 'dev-shh'  # Ensure this matches your configured SSH service connection
+                    sourceFolder: '$(System.ArtifactsDirectory)'
+                    contents: '**/*.jar'
+                    targetFolder: '/home/adminuser/sudhakar'
+                    readyTimeout: '20000'

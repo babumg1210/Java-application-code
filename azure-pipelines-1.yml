@@ -45,11 +45,12 @@ stages:
                     readyTimeout: '20000'
                 - task: SSH@0
                   inputs:
-                    sshEndpoint: 'dev-shh'
+                    sshEndpoint: 'dev-shh'  # Ensure this matches your configured SSH service connection
                     runOptions: 'commands'
-                    commands: 
-                       sudo apt update
-                       sudo apt install openjdk-11-jdk -y
-                       'java -jar /home/adminuser/sudhakar/**.jar'
-                    readyTimeout: '20000'
-              
+                    command: |
+                      sudo apt update
+                      sudo apt install openjdk-11-jdk -y
+                      java -jar /home/adminuser/sudhakar/drop/spring-boot-web.jar
+                  displayName: Install Java and Start JAR File on VM
+
+                              

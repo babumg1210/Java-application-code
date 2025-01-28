@@ -20,7 +20,7 @@ stages:
       - deployment: DevDeployment
         displayName: 'Deploy to Development'
         environment:
-          name: 'Development'  # Name of the environment
+          name: 'oneidapi-dev-env'  # Name of the environment
           resourceType: VirtualMachine  # Type of resource being deployed
         strategy:
           rolling:

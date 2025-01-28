@@ -26,7 +26,7 @@ stages:
             goals: 'package'
         - task: CopyFiles@2
           inputs:
-            SourceFolder: '$(Build.SourcesDirectory)/target'  # The directory where your Maven builds the JAR/WAR
+            SourceFolder: '$(system.defaultworkingdirectory)/target'  # The directory where your Maven builds the JAR/WAR
             Contents: '**/*.jar'  # You can also use *.war or specific file names if needed
             TargetFolder: '$(Build.ArtifactStagingDirectory)/app'  # The directory where files are copied (staging for artifacts)
 

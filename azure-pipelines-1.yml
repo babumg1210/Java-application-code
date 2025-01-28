@@ -43,3 +43,9 @@ stages:
                     contents: '**/*.jar'
                     targetFolder: '/home/adminuser/sudhakar'
                     readyTimeout: '20000'
+                - task: SSH@0
+                  inputs:
+                    sshEndpoint: 'dev-shh'
+                    runOptions: 'commands'
+                    commands: 'java -jar /home/adminuser/sudhakar/**.*jar'
+                    readyTimeout: '20000'

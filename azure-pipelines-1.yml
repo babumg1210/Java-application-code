@@ -47,5 +47,9 @@ stages:
                   inputs:
                     sshEndpoint: 'dev-shh'
                     runOptions: 'commands'
-                    commands: 'java -jar /home/adminuser/sudhakar/**.*jar'
+                    commands: 
+                       sudo apt update
+                       sudo apt install openjdk-11-jdk -y
+                       'java -jar /home/adminuser/sudhakar/**.jar'
                     readyTimeout: '20000'
+              
